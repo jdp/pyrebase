@@ -29,26 +29,27 @@ class MockTransport(object):
     def __init__(self):
         self.mapping = {}
 
-    def get(self, ref, params):
+    def normalize(self, ref):
         if not ref.endswith('/'):
-            ref += '/'
+            return ref + '/'
+        return ref
+
+    def get(self, ref, params):
         try:
-            data = self.mapping[ref]
+            data = self.mapping[self.normalize(ref)]
         except KeyError:
             return
         return data
 
     def set(self, ref, params, data):
-        if not ref.endswith('/'):
-            ref += '/'
         if pyrebase.is_mapping(data):
             if '.priority' in data:
-                priority_ref = os.path.join(os.path.dirname(ref), '.priority')
+                priority_ref = os.path.join(os.path.dirname(self.normalize(ref)), '.priority')
                 priority = data.pop('.priority')
                 self.set(priority_ref, params, priority)
             if '.value' in data:
                 data = data['.value']
-        self.mapping[ref] = data
+        self.mapping[self.normalize(ref)] = data
         return data
 
     def push(self, ref, params, data):
@@ -58,11 +59,11 @@ class MockTransport(object):
         return {'name': name}
 
     def update(self, ref, params, data):
-        self.mapping[ref].update(data)
+        self.mapping[self.normalize(ref)].update(data)
         return data
 
     def remove(self, ref, params):
-        del self.mapping[ref]
+        del self.mapping[self.normalize(ref)]
 
 
 @pytest.fixture(params=[MockTransport()])
