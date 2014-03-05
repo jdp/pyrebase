@@ -75,6 +75,21 @@ def test_child(firebase):
     c = firebase.child('-Izjg-FkP7eXLa1EXVAi')
     assert c.ref == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/'
 
+    c = firebase.child('foo/bar')
+    assert c.ref == 'https://pyrebase.firebaseIO.com/foo/bar/'
+
+    c = firebase.child('.')
+    assert c.ref == 'https://pyrebase.firebaseIO.com/'
+
+    c = firebase.child('..')
+    assert c.ref == 'https://pyrebase.firebaseIO.com/'
+
+    c = firebase.child('foo/bar/..')
+    assert c.ref == 'https://pyrebase.firebaseIO.com/foo/'
+
+    c = firebase.child('foo/../bar')
+    assert c.ref == 'https://pyrebase.firebaseIO.com/bar/'
+
 
 def test_child_priority(firebase):
     c = firebase.child('-Izjg-FkP7eXLa1EXVAi').child('.priority')
