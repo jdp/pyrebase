@@ -67,40 +67,40 @@ def firebase(request):
     return pyrebase.Firebase('https://pyrebase.firebaseIO.com/', transport=request.param)
 
 
-def test_ref_url(firebase):
+def test_get_ref_url(firebase):
     assert firebase.get_ref_url() == 'https://pyrebase.firebaseIO.com/.json'
 
 
 def test_child(firebase):
     c = firebase.child('-Izjg-FkP7eXLa1EXVAi')
-    assert c.get_ref_url() == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/.json'
+    assert c.ref == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/'
 
 
 def test_child_priority(firebase):
     c = firebase.child('-Izjg-FkP7eXLa1EXVAi').child('.priority')
-    assert c.get_ref_url() == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/.priority/.json'
+    assert c.ref == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/.priority/'
 
 
 def test_nested_child(firebase):
     c = firebase.child('-Izjg-FkP7eXLa1EXVAi').child('-Izjh72mPJj7xJm0e4kQ')
-    assert c.get_ref_url() == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/-Izjh72mPJj7xJm0e4kQ/.json'
+    assert c.ref == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/-Izjh72mPJj7xJm0e4kQ/'
     c = firebase.child('-Izjg-FkP7eXLa1EXVAi/-Izjh72mPJj7xJm0e4kQ')
-    assert c.get_ref_url() == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/-Izjh72mPJj7xJm0e4kQ/.json'
+    assert c.ref == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/-Izjh72mPJj7xJm0e4kQ/'
 
 
 def test_parent(firebase):
-    assert firebase.get_ref_url() == firebase.parent.get_ref_url()
+    assert firebase.ref == firebase.parent.ref
 
     child = firebase.child('-Izjg-FkP7eXLa1EXVAi/-Izjh72mPJj7xJm0e4kQ')
     parent = child.parent
-    assert parent.get_ref_url() == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/.json'
+    assert parent.ref == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/'
     root = parent.parent
-    assert root.get_ref_url() == 'https://pyrebase.firebaseIO.com/.json'
+    assert root.ref == 'https://pyrebase.firebaseIO.com/'
 
 
 def test_root(firebase):
-    f = firebase.child('-Izjg-FkP7eXLa1EXVAi/-Izjh72mPJj7xJm0e4kQ')
-    assert f.root.get_ref_url() == firebase.get_ref_url()
+    c = firebase.child('-Izjg-FkP7eXLa1EXVAi/-Izjh72mPJj7xJm0e4kQ')
+    assert c.root.ref == firebase.ref
 
 
 def test_prepare_data(firebase):
@@ -149,7 +149,7 @@ def test_get_priority(firebase):
 
 def test_push(firebase):
     c = firebase.push('foo')
-    assert c.get_ref_url() != firebase.get_ref_url()
+    assert c.ref != firebase.ref
     assert c.get() == 'foo'
 
     c = firebase.push('bar', priority=3)
