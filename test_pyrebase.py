@@ -67,10 +67,6 @@ def firebase(request):
     return pyrebase.Firebase('https://pyrebase.firebaseIO.com/', transport=request.param)
 
 
-def test_get_ref_url(firebase):
-    assert firebase.get_ref_url() == 'https://pyrebase.firebaseIO.com/.json'
-
-
 def test_child(firebase):
     c = firebase.child('-Izjg-FkP7eXLa1EXVAi')
     assert c.ref == 'https://pyrebase.firebaseIO.com/-Izjg-FkP7eXLa1EXVAi/'

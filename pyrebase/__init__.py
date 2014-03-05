@@ -83,16 +83,17 @@ class Firebase(object):
             value += '/'
         self._ref = value.strip()
 
-    def get_ref_url(self):
+    @property
+    def _ref_url(self):
         """Return the URL of this location.
         """
-        return '{0}.json'.format(self.ref)
+        return self.ref + '.json'
 
     def get(self, format=None):
         """Return the data at this location.
         """
         params = self.get_params(format=format)
-        return self.transport.get(self.get_ref_url(), params)
+        return self.transport.get(self._ref_url, params)
 
     def get_priority(self):
         """Return the priority of the data at this location.
@@ -105,7 +106,7 @@ class Firebase(object):
         """
         params = self.get_params()
         data = self.prepare_data(value, priority)
-        return self.transport.set(self.get_ref_url(), params, data)
+        return self.transport.set(self._ref_url, params, data)
 
     def set_priority(self, priority):
         """Set a priority for the data at this Firebase location.
@@ -123,7 +124,7 @@ class Firebase(object):
         """
         params = self.get_params()
         data = self.prepare_data(value, priority)
-        pushed = self.transport.push(self.get_ref_url(), params, data)
+        pushed = self.transport.push(self._ref_url, params, data)
         return self.child(pushed['name'])
 
     def update(self, value, priority=None):
@@ -131,13 +132,13 @@ class Firebase(object):
         """
         params = self.get_params()
         data = self.prepare_data(value, priority)
-        return self.transport.update(self.get_ref_url(), params, data)
+        return self.transport.update(self._ref_url, params, data)
 
     def remove(self):
         """Remove this location.
         """
         params = self.get_params()
-        return self.transport.remove(self.get_ref_url(), params)
+        return self.transport.remove(self._ref_url, params)
 
     def _factory(self, ref):
         return self.__class__(ref, auth=self.auth, transport=self.transport)
