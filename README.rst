@@ -1,12 +1,17 @@
 Pyrebase
 ========
 
+.. image:: https://travis-ci.org/jdp/pyrebase.png?branch=master
+   :target: https://travis-ci.org/jdp/pyrebase
+
 Pyrebase is a Firebase_ client library for Python.
 
 Getting Started
 ---------------
 
-Connecting to a Firebase location and adding data to it is easy. Here's how::
+Connecting to a Firebase location and adding data to it is easy. Here's how:
+
+.. code-block:: pycon
 
     >>> import pyrebase
     >>> f = pyrebase.Firebase('https://pyrebase.firebaseIO.com/')
@@ -16,7 +21,9 @@ Connecting to a Firebase location and adding data to it is easy. Here's how::
     >>> c.get()
     {u'foo': u'bar'}
 
-Traversing locations is simple with the ``parent``, ``child``, and ``root`` methods::
+Traversing locations is simple with the ``parent``, ``child``, and ``root`` methods:
+
+.. code-block:: pycon
 
     >>> f = pyrebase.Firebase('https://pyrebase.firebaseIO.com/pokemon/bulbasaur')
     >>> f.root.ref
@@ -28,7 +35,9 @@ Traversing locations is simple with the ``parent``, ``child``, and ``root`` meth
     >>> f.parent.child('squirtle').ref
     'https://pyrebase.firebaseIO.com/pokemon/squirtle/'
 
-Remember to use the official `firebase-token-generator`_ package for authentication::
+Remember to use the official `firebase-token-generator`_ package for authentication:
+
+.. code-block:: pycon
 
     >>> from firebase_token_generator import create_token
     >>> custom_data = {'pokemon_master': True}
