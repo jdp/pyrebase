@@ -53,7 +53,7 @@ class MockTransport(object):
         return data
 
     def push(self, ref, params, data):
-        name = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(16))
+        name = ''.join(random.choice(string.ascii_lowercase) for _ in range(16))
         pushed_ref = os.path.join(os.path.dirname(ref), name)
         self.set(pushed_ref, params, data)
         return {'name': name}
