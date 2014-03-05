@@ -1,6 +1,10 @@
 import json
 import os.path
-import urlparse
+
+try:
+    from urlparse import urljoin, urlsplit, urlunsplit
+except ImportError:
+    from urllib.parse import urljoin, urlsplit, urlunsplit
 
 import requests
 
@@ -141,28 +145,28 @@ class Firebase(object):
     def child(self, path):
         """Return a child location under this location.
         """
-        child_ref = urlparse.urljoin(self.ref, path.lstrip().lstrip('/'))
+        child_ref = urljoin(self.ref, path.lstrip().lstrip('/'))
         return self._factory(child_ref)
 
     @property
     def parent(self):
         """Return the parent of this location.
         """
-        parts = urlparse.urlsplit(self.ref)
+        parts = urlsplit(self.ref)
         path_up = os.path.split(parts.path.rstrip('/'))[0]
         newparts = (parts.scheme,
                     parts.netloc,
                     path_up,
                     parts.query,
                     parts.fragment)
-        parent_ref = urlparse.urlunsplit(newparts)
+        parent_ref = urlunsplit(newparts)
         return self._factory(parent_ref)
 
     @property
     def root(self):
         """Return the root location.
         """
-        root_ref = urlparse.urljoin(self.ref, '/')
+        root_ref = urljoin(self.ref, '/')
         return self._factory(root_ref)
 
     def get_params(self, **params):
