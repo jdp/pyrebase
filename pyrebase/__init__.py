@@ -135,11 +135,14 @@ class Firebase(object):
         params = self.get_params()
         return self.transport.remove(self.get_ref_url(), params)
 
+    def _factory(self, ref):
+        return self.__class__(ref, auth=self.auth, transport=self.transport)
+
     def child(self, path):
         """Return a child location under this location.
         """
         child_ref = urlparse.urljoin(self.ref, path.lstrip().lstrip('/'))
-        return self.__class__(child_ref, auth=self.auth, transport=self.transport)
+        return self._factory(child_ref)
 
     @property
     def parent(self):
@@ -153,14 +156,14 @@ class Firebase(object):
                     parts.query,
                     parts.fragment)
         parent_ref = urlparse.urlunsplit(newparts)
-        return self.__class__(parent_ref, auth=self.auth, transport=self.transport)
+        return self._factory(parent_ref)
 
     @property
     def root(self):
         """Return the root location.
         """
         root_ref = urlparse.urljoin(self.ref, '/')
-        return self.__class__(root_ref, auth=self.auth, transport=self.transport)
+        return self._factory(root_ref)
 
     def get_params(self, **params):
         if self.auth and 'auth' not in params:
