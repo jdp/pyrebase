@@ -29,36 +29,40 @@ class MockTransport(object):
     def __init__(self):
         self.mapping = {}
 
-    def get(self, ref_url, params):
+    def get(self, ref, params):
+        if not ref.endswith('/'):
+            ref += '/'
         try:
-            data = self.mapping[ref_url]
+            data = self.mapping[ref]
         except KeyError:
             return
         return data
 
-    def set(self, ref_url, params, data):
+    def set(self, ref, params, data):
+        if not ref.endswith('/'):
+            ref += '/'
         if pyrebase.is_mapping(data):
             if '.priority' in data:
-                priority_ref_url = os.path.join(os.path.dirname(ref_url), '.priority/.json')
+                priority_ref = os.path.join(os.path.dirname(ref), '.priority')
                 priority = data.pop('.priority')
-                self.set(priority_ref_url, params, priority)
+                self.set(priority_ref, params, priority)
             if '.value' in data:
                 data = data['.value']
-        self.mapping[ref_url] = data
+        self.mapping[ref] = data
         return data
 
-    def push(self, ref_url, params, data):
+    def push(self, ref, params, data):
         name = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(16))
-        pushed_ref_url = os.path.join(os.path.dirname(ref_url), name + '/.json')
-        self.set(pushed_ref_url, params, data)
+        pushed_ref = os.path.join(os.path.dirname(ref), name)
+        self.set(pushed_ref, params, data)
         return {'name': name}
 
-    def update(self, ref_url, params, data):
-        self.mapping[ref_url].update(data)
+    def update(self, ref, params, data):
+        self.mapping[ref].update(data)
         return data
 
-    def remove(self, ref_url, params):
-        del self.mapping[ref_url]
+    def remove(self, ref, params):
+        del self.mapping[ref]
 
 
 @pytest.fixture(params=[MockTransport()])
@@ -177,6 +181,5 @@ def test_update(firebase):
 
 def test_remove(firebase):
     c = firebase.push('foo')
-    assert c.get() == 'foo'
     c.remove()
     assert c.get() is None
