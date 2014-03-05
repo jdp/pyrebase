@@ -34,29 +34,29 @@ class ServerValue:
 
 
 class HTTPTransport(object):
-    def get(self, ref_url, params):
-        r = requests.get(ref_url, params=params)
+    def request(self, func, ref, params, data=None):
+        if data:
+            data = self.encode(data)
+        ref_url = ref + '.json'
+        r = func(ref_url, params=params, data=data)
         r.raise_for_status()
-        return self.decode(r.text)
+        if r.text:
+            return self.decode(r.text)
 
-    def set(self, ref_url, params, data):
-        r = requests.put(ref_url, params=params, data=self.encode(data))
-        r.raise_for_status()
-        return self.decode(r.text)
+    def get(self, ref, params):
+        return self.request(requests.get, ref, params)
 
-    def push(self, ref_url, params, data):
-        r = requests.post(ref_url, params=params, data=self.encode(data))
-        r.raise_for_status()
-        return self.decode(r.text)
+    def set(self, ref, params, data):
+        return self.request(requests.put, ref, params, data)
 
-    def update(self, ref_url, params, data):
-        r = requests.patch(ref_url, params=params, data=self.encode(data))
-        r.raise_for_status()
-        return self.decode(r.text)
+    def push(self, ref, params, data):
+        return self.request(requests.post, ref, params, data)
 
-    def remove(self, ref_url, params):
-        r = requests.delete(ref_url, params=params)
-        r.raise_for_status()
+    def update(self, ref, params, data):
+        return self.request(requests.patch, ref, params, data)
+
+    def remove(self, ref, params):
+        return self.request(requests.delete, ref, params)
 
     def encode(self, data):
         return json.dumps(data)
@@ -83,17 +83,11 @@ class Firebase(object):
             value += '/'
         self._ref = value.strip()
 
-    @property
-    def _ref_url(self):
-        """Return the URL of this location.
-        """
-        return self.ref + '.json'
-
     def get(self, format=None):
         """Return the data at this location.
         """
         params = self.get_params(format=format)
-        return self.transport.get(self._ref_url, params)
+        return self.transport.get(self.ref, params)
 
     def get_priority(self):
         """Return the priority of the data at this location.
@@ -106,7 +100,7 @@ class Firebase(object):
         """
         params = self.get_params()
         data = self.prepare_data(value, priority)
-        return self.transport.set(self._ref_url, params, data)
+        return self.transport.set(self.ref, params, data)
 
     def set_priority(self, priority):
         """Set a priority for the data at this Firebase location.
@@ -124,7 +118,7 @@ class Firebase(object):
         """
         params = self.get_params()
         data = self.prepare_data(value, priority)
-        pushed = self.transport.push(self._ref_url, params, data)
+        pushed = self.transport.push(self.ref, params, data)
         return self.child(pushed['name'])
 
     def update(self, value, priority=None):
@@ -132,13 +126,13 @@ class Firebase(object):
         """
         params = self.get_params()
         data = self.prepare_data(value, priority)
-        return self.transport.update(self._ref_url, params, data)
+        return self.transport.update(self.ref, params, data)
 
     def remove(self):
         """Remove this location.
         """
         params = self.get_params()
-        return self.transport.remove(self._ref_url, params)
+        return self.transport.remove(self.ref, params)
 
     def _factory(self, ref):
         return self.__class__(ref, auth=self.auth, transport=self.transport)
