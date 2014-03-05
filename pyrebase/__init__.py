@@ -86,7 +86,7 @@ class Firebase(object):
     def get_ref_url(self):
         """Return the URL of this location.
         """
-        return '{}.json'.format(self.ref)
+        return '{0}.json'.format(self.ref)
 
     def get(self, format=None):
         """Return the data at this location.
